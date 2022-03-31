@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "vn.vnpay.grpcrabbit.transaction.proto";
+option java_outer_classname = "GrpcRabbitProto";
+option objc_class_prefix = "RTG";
+
+package proto;
+
+message Transaction {
+  string tokenKey = 1;
+  string bankCode = 2;
+  string accountNo = 3;
+  string payDate = 4;
+  string debitAmount = 5;
+  string respCode = 6;
+  string respDesc = 7;
+  Item item = 8;
+  string orderCode = 9;
+  string username = 10;
+  string realAmount = 11;
+  string promotionCode = 12;
+}
+
+message Item {
+  string qrInfor = 1;
+  string quantity = 2;
+  string note = 3;
+}
+
+message TransactionRequest {;
+  Transaction transaction = 2;
+}
+
+message TransactionResponse {
+  string code = 1;
+  string message = 2;
+  Transaction data = 3;
+}
+
+message Message {
+  string message = 1;
+}
+
+service TransactionService {
+  rpc GetTransaction(TransactionRequest) returns (TransactionResponse){}
+}
