@@ -28,7 +28,7 @@ message Item {
   string note = 3;
 }
 
-message TransactionRequest {;
+message TransactionRequest {
   Transaction transaction = 2;
 }
 

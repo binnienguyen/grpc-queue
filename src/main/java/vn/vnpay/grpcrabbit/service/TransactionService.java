@@ -27,8 +27,7 @@ public class TransactionService extends TransactionServiceGrpc.TransactionServic
     @Value("${queue.routingkey}")
     private String routingkey;
 
-    @Value("${queue.name}")
-    private String QUEUE_NAME;
+    private final String QUEUE_NAME = "grpc-rabbit";
 
     @Override
     public void getTransaction(TransactionRequest request, StreamObserver<TransactionResponse> responseObserver){
@@ -45,13 +44,14 @@ public class TransactionService extends TransactionServiceGrpc.TransactionServic
                 .setData(request.getTransaction())
                 .build();
         try {
-            Channel channel = null;
+            log.info("Resp: {}", response.toString().getBytes(StandardCharsets.UTF_8));
+            Channel channelRabbit = null;
             connection = factory.newConnection();
-            channel = connection.createChannel();
-            channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            channel.basicPublish("", QUEUE_NAME, null, response.toString().getBytes(StandardCharsets.UTF_8));
+            channelRabbit = connection.createChannel();
+            channelRabbit.queueDeclare(QUEUE_NAME, false, false, false, null);
+            channelRabbit.basicPublish("", QUEUE_NAME, null, response.toString().getBytes(StandardCharsets.UTF_8));
             log.info("[!] Send '" + request + "'");
-            channel.close();
+            channelRabbit.close();
             connection.close();
         } catch (IOException e) {
             e.printStackTrace();

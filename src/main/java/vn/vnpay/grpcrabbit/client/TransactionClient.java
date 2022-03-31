@@ -21,19 +21,11 @@ import java.io.IOException;
 @Slf4j
 public class TransactionClient {
     private final static String QUEUE_NAME = "grpc-rabbit";
-    private static TransactionServiceGrpc.TransactionServiceBlockingStub blockingStub;
-    private final TransactionServiceGrpc.TransactionServiceStub asyncStub;
-    static ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
-            .usePlaintext().build();
-
-    public TransactionClient() {
-        blockingStub = TransactionServiceGrpc.newBlockingStub(channel);
-        asyncStub = TransactionServiceGrpc.newStub(channel);
-    }
 
 
     public static void main(String[] args) {
-
+        ManagedChannel channelGrpc = ManagedChannelBuilder.forAddress("localhost", 8080)
+                .usePlaintext().build();
         // set data for item
         Item item = Item.newBuilder()
                 .setQrInfor("00020101021226240006908405011003104494765204421453037045405700005802VN5906BAEMIN6003HCM62660306BAEMIN051901210324174110900440708baemin010817Thanh toan Qrcode63046490")
@@ -61,6 +53,7 @@ public class TransactionClient {
                 .setTransaction(transaction)
                 .build();
         log.info("\n[>] Request: {}", request);
+        TransactionServiceGrpc.TransactionServiceBlockingStub blockingStub = TransactionServiceGrpc.newBlockingStub(channelGrpc);
         TransactionResponse response = blockingStub.getTransaction(request);
         final String[] message = new String[]{String.valueOf(response)};
         try {
@@ -90,6 +83,6 @@ public class TransactionClient {
         }catch (Exception ex){
             log.error("Error: ", ex);
         }
-        channel.shutdown();
+        channelGrpc.shutdown();
     }
 }
