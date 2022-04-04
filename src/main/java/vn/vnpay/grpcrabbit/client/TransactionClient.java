@@ -25,7 +25,7 @@ public class TransactionClient {
 
 
     public static void main(String[] args) {
-        ManagedChannel channelGrpc = ManagedChannelBuilder.forAddress("localhost", 8080)
+        ManagedChannel channelGrpc = ManagedChannelBuilder.forAddress("localhost", 8090)
                 .usePlaintext().build();
         // set data for item
         Item item = Item.newBuilder()
@@ -54,6 +54,7 @@ public class TransactionClient {
                 .setTransaction(transaction)
                 .build();
         log.info("\n[>] Request: {}", request);
+        log.info("\n[>] Request size: {} bytes", request.toString().getBytes(StandardCharsets.UTF_8).length );
         TransactionServiceGrpc.TransactionServiceBlockingStub blockingStub = TransactionServiceGrpc.newBlockingStub(channelGrpc);
         TransactionResponse response = blockingStub.getTransaction(request);
         final String[] message = new String[]{String.valueOf(response)};

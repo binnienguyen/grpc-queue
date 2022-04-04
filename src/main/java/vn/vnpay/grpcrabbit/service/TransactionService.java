@@ -23,6 +23,7 @@ public class TransactionService extends TransactionServiceGrpc.TransactionServic
     @Override
     public void getTransaction(TransactionRequest request, StreamObserver<TransactionResponse> responseObserver) {
         log.info("\n[x] Request from client: {}", request);
+        log.info("\n[x] Size of request from client: {} bytes", request.toString().getBytes(StandardCharsets.UTF_8).length);
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         factory.setUsername("admin");
@@ -33,29 +34,22 @@ public class TransactionService extends TransactionServiceGrpc.TransactionServic
                 .setData(request.getTransaction())
                 .build();
         try {
-            log.info("Resp: {}", response.toString().getBytes(StandardCharsets.UTF_8));
             Channel channelRabbit = null;
             connection = factory.newConnection();
             channelRabbit = connection.createChannel();
             channelRabbit.queueDeclare(QUEUE_NAME, false, false, false, null);
             channelRabbit.basicPublish("", QUEUE_NAME, null, response.toString().getBytes(StandardCharsets.UTF_8));
             log.info("[!] Send '" + request + "'");
-            log.info("response size: {} bytes", response.getData().getSerializedSize());
+            log.info("response size: {} bytes", response.toString().getBytes(StandardCharsets.UTF_8).length);
             channelRabbit.close();
             connection.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
 
 
         responseObserver.onNext(response);
         responseObserver.onCompleted();
-    }
-
-    private void extracted(IOException e) {
-        e.printStackTrace();
     }
 
 }

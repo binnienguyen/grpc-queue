@@ -11,7 +11,7 @@ import java.io.IOException;
 @Slf4j
 public class TransactionServer {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Server server = ServerBuilder.forPort(8080)
+        Server server = ServerBuilder.forPort(8090)
                 .addService(new TransactionService()).build();
         log.info("\nStarting server.....");
         server.start();
