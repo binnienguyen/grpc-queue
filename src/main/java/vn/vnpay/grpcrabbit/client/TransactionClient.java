@@ -17,6 +17,7 @@ import vn.vnpay.grpcrabbit.transaction.proto.TransactionResponse;
 import vn.vnpay.grpcrabbit.transaction.proto.TransactionServiceGrpc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 public class TransactionClient {
@@ -77,6 +78,7 @@ public class TransactionClient {
                     message[0] = new String(body, "UTF-8");
 
                     log.info("[x] Message Recieved' " + message[0] + "'");
+                    log.info("response size: {} bytes", message[0].getBytes(StandardCharsets.UTF_8).length);
                 }
             };
             channelRabbit.basicConsume(QUEUE_NAME, true, consumer);

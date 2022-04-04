@@ -33,9 +33,7 @@ message TransactionRequest {
 }
 
 message TransactionResponse {
-  string code = 1;
-  string message = 2;
-  Transaction data = 3;
+  Transaction data = 1;
 }
 
 message Message {
