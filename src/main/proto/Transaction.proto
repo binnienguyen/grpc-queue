@@ -7,6 +7,7 @@ option objc_class_prefix = "RTG";
 
 package proto;
 
+
 message Transaction {
   string tokenKey = 1;
   string bankCode = 2;
@@ -41,5 +42,10 @@ message Message {
 }
 
 service TransactionService {
-  rpc GetTransaction(TransactionRequest) returns (TransactionResponse){}
+  rpc GetTransaction(TransactionRequest) returns (TransactionResponse){
+//    option (google.api.http) = {
+//      post: "/v1/transaction"
+//      body: "*"
+//    };
+  }
 }

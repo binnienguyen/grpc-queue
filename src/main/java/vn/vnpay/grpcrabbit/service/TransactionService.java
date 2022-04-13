@@ -14,11 +14,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
+import static vn.vnpay.grpcrabbit.client.TransactionClient.QUEUE_NAME;
+
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionService extends TransactionServiceGrpc.TransactionServiceImplBase {
-
-    private final String QUEUE_NAME = "grpc-rabbit";
 
     @Override
     public void getTransaction(TransactionRequest request, StreamObserver<TransactionResponse> responseObserver) {

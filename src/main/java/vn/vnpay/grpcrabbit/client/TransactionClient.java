@@ -1,15 +1,16 @@
 package vn.vnpay.grpcrabbit.client;
 
 import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
-import com.rabbitmq.client.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StopWatch;
 import vn.vnpay.grpcrabbit.transaction.proto.Item;
 import vn.vnpay.grpcrabbit.transaction.proto.Transaction;
 import vn.vnpay.grpcrabbit.transaction.proto.TransactionRequest;
@@ -17,14 +18,17 @@ import vn.vnpay.grpcrabbit.transaction.proto.TransactionResponse;
 import vn.vnpay.grpcrabbit.transaction.proto.TransactionServiceGrpc;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 public class TransactionClient {
-    private final static String QUEUE_NAME = "grpc-rabbit";
+    public final static String QUEUE_NAME = "grpc-rabbit";
 
 
     public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         ManagedChannel channelGrpc = ManagedChannelBuilder.forAddress("localhost", 8090)
                 .usePlaintext().build();
         // set data for item
@@ -54,7 +58,7 @@ public class TransactionClient {
                 .setTransaction(transaction)
                 .build();
         log.info("\n[>] Request: {}", request);
-        log.info("\n[>] Request size: {} bytes", request.toString().getBytes(StandardCharsets.UTF_8).length );
+        log.info("\n[>] Request size: {} bytes", request.toString().getBytes(UTF_8).length );
         TransactionServiceGrpc.TransactionServiceBlockingStub blockingStub = TransactionServiceGrpc.newBlockingStub(channelGrpc);
         TransactionResponse response = blockingStub.getTransaction(request);
         final String[] message = new String[]{String.valueOf(response)};
@@ -76,16 +80,20 @@ public class TransactionClient {
                                            AMQP.BasicProperties properties,
                                            byte[] body)
                         throws IOException {
-                    message[0] = new String(body, "UTF-8");
+                    message[0] = new String(body, UTF_8);
 
                     log.info("[x] Message Recieved' " + message[0] + "'");
-                    log.info("response size: {} bytes", message[0].getBytes(StandardCharsets.UTF_8).length);
+                    log.info("response size: {} bytes", message[0].getBytes(UTF_8).length);
                 }
             };
             channelRabbit.basicConsume(QUEUE_NAME, true, consumer);
         }catch (Exception ex){
             log.error("Error: ", ex);
         }
+
+        stopWatch.stop();
+        long timeMili = stopWatch.getLastTaskTimeMillis();
+        log.info("Time execute: {}", timeMili);
         channelGrpc.shutdown();
     }
 }
